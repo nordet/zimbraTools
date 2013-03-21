@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Téléchargez le fichier au format ics à nettoyer :</h2>
+  <form enctype="multipart/form-data" action="fileToClean" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Envoyer" />
+  </form>
+{% endblock %}

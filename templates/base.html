@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>zimbraTools</title>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/style.css">
+    </head>
+
+    <body>
+      <div id="entete">
+        <div id="logo">
+          <a href = "{% url home %}">
+            <img src="{{ STATIC_URL }}img/logo.png">
+          </a>
+        </div>
+        <div id="current_user">
+          <ul>
+            <li>{{ user.username }}</li>
+          </ul>
+        </div>
+        {% block menu %}
+          <div id="main_menu">
+            <ul id="menu">
+              <li><a href="{% url home %}">Accueil</a></li>
+              <li><a href="#">Zimbra</a>
+                <ul>
+                  <li><a href="{% url select_compte %}">Sélectioner un compte</a></li>
+                </ul>
+              </li>
+              <li><a href="{% url fileToClean %}">Nettoyer fichier calendrier</a></li>
+              {% if user.is_authenticated %}
+                <li><a href="{% url logout_view %}">Déconnexion</a></li>
+              {% else %}
+                <li><a href="login">Connexion</a></li>
+              {% endif %}
+            </ul>
+          </div>
+        {% endblock%}
+      </div>
+    	<div id="content">
+    	{% block content %}
+    	
+    	{% endblock %}
+    	</div>
+    	<div id="footer">
+    	  <p>
+          Powered by <a href="http://www.nordet.fr/" target="_blank">Nordet Free Technology 2013</a>
+        </p>
+    	</div>
+    </body>
+</html>

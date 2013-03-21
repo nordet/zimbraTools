@@ -1,0 +1,10 @@
+eclipse.preferences.version=1
+encoding//icalendar/cal.py=utf-8
+encoding//icalendar/caselessdict.py=utf-8
+encoding//icalendar/parser.py=utf-8
+encoding//icalendar/prop.py=utf-8
+encoding//removeDoublons/forms.py=utf-8
+encoding//removeDoublons/models/CalendriersCompteZimbra.py=utf-8
+encoding//removeDoublons/views.py=utf-8
+encoding//zimbraTools/settings.py=utf-8
+encoding//zimbraTools/urls.py=utf-8

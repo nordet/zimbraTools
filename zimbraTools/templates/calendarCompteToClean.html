@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Compte utilisateur <b>{{ compte }}</b> :</h2>
+  <p><b>Attention !</b> Le nettoyage d'un calendrier peut entrainer la perte d'informations. 
+     Veuillez faire une sauvegarde préalable en sélectionant dans votre interface Zimbra "Préférences" -> "Importer/Exporter" 
+     et choisir l'export du calendrier que vous souhaitez nettoyer.</p>
+  <form action="calendarToClean" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="ok" />
+  </form>
+{% endblock %}
