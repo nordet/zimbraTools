@@ -1,26 +1,18 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
 from django.shortcuts import render_to_response
-from django.shortcuts import render
 from django.template import RequestContext
-from django.http import HttpResponseRedirect, HttpRequest, HttpResponse
-from django.http import Http404
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from forms import UploadFileForm
 from django.conf import settings
-from icalendar.parser import Contentline
-from icalendar import Calendar, Event
-from icalendar.parser import *
-from icalendar.cal import *
+from icalendar import Calendar
 from enchant.utils import str
 from forms import SelectCompteForm
 from forms import SelectCalendarForm
-from tools import list2tuple
-from django.template.context import Context
 import time
 from zimbraTools.settings import ZIMBRA_SERVER, MEDIA_ROOT
 import os
-from rope.base.builtins import Str
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import smart_str
