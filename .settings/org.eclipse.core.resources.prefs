@@ -1,6 +1,13 @@
 eclipse.preferences.version=1
+encoding//removeDoublons/admin.py=utf-8
+encoding//removeDoublons/context_processors.py=utf-8
 encoding//removeDoublons/forms.py=utf-8
 encoding//removeDoublons/models/CalendriersCompteZimbra.py=utf-8
+encoding//removeDoublons/models/ComptesZimbra.py=utf-8
+encoding//removeDoublons/models/LdapServerClass.py=utf-8
+encoding//removeDoublons/models/ZimbraServerClass.py=utf-8
+encoding//removeDoublons/models/__init__.py=utf-8
+encoding//removeDoublons/settings.py=utf-8
 encoding//removeDoublons/views.py=utf-8
 encoding//zimbraTools/settings.py=utf-8
 encoding//zimbraTools/urls.py=utf-8

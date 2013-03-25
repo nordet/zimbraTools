@@ -10,12 +10,15 @@ from icalendar import Calendar
 from enchant.utils import str
 from forms import SelectCompteForm
 from forms import SelectCalendarForm
+from forms import LoginForm
 import time
-from zimbraTools.settings import ZIMBRA_SERVER, MEDIA_ROOT
+from zimbraTools.settings import MEDIA_ROOT
 import os
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import smart_str
+from removeDoublons.models.ZimbraServerClass import ZimbraServerClass
+from rope.base.builtins import Str
 # from rope.base.builtins import Str
 
 
@@ -151,20 +154,21 @@ def fileToClean(request):
                               context_instance=RequestContext(request))
 
 def fileCleanAgenda(request):
-    return render_to_response('fileCleanAgenda.html', {'fichierSortie': fichierSortie, })
+    return render_to_response('fileCleanAgenda.html',
+                              {'fichierSortie': fichierSortie, },
+                              context_instance=RequestContext(request))
 
 @login_required
 def select_compte(request):
   if request.method == 'POST':
-    form = SelectCompteForm(request.POST, request.FILES)
-    if form.is_valid():
-      compte = form.cleaned_data['compte']
-      if isinstance(compte, unicode):
-        compte = compte.encode('ascii', 'ignore')
-      # request.session['current_account'] = compte
+    queryDictRequestPost = request.POST.copy()
+    compte = queryDictRequestPost.get('compte', None)
+    form = SelectCompteForm(queryDictRequestPost)
+    # compte = SelectCompteForm(request.POST.get('compte', None))
     return HttpResponseRedirect(reverse('calendarToClean', args=[compte]))
   else:
-    form = SelectCompteForm()
+    form = SelectCompteForm(request.session['currentZimbraServer'])
+    print "===== select_compte : form = ", form
     return render_to_response('select_compte.html',
                               {'form': form, },
                               context_instance=RequestContext(request))
@@ -185,11 +189,11 @@ def calendarToClean(request, compte):
     if isinstance(calendrier, unicode):
       calendrier = calendrier.encode('ascii', 'ignore')
     ficExport = "calExport_" + cpte + "_" + calendrier + "_" + time.strftime('%d-%m-%y_%H:%M', time.localtime()) + ".ics"
-    commande = "ssh root@" + ZIMBRA_SERVER + " /root/zimbraTools/exporterCalendar.sh " + cpte + " " + calendrier + " " + ficExport
+    commande = "ssh root@" + str(request.session['currentZimbraServer']) + " /root/zimbraTools/exporterCalendar.sh " + cpte + " " + calendrier + " " + ficExport
     os.popen(commande)
     #
     # copie du fichier calendrier en local
-    commande = "scp root@" + ZIMBRA_SERVER + ":/tmp/zimbraTools/" + ficExport + " " + MEDIA_ROOT
+    commande = "scp root@" + str(request.session['currentZimbraServer']) + ":/tmp/zimbraTools/" + ficExport + " " + MEDIA_ROOT
     os.popen(commande)
     ficClean = "clean_" + ficExport
     ficEntree = fichierEntree(ficExport)
@@ -199,56 +203,71 @@ def calendarToClean(request, compte):
     cleanFileIcs(ficEntree, ficSortie)
     #
     # copie du fichier nettoyé sur le serveur zimbra
-    commande = "scp " + MEDIA_ROOT + ficClean + " root@" + ZIMBRA_SERVER + ":/tmp/zimbraTools/"
+    commande = "scp " + MEDIA_ROOT + ficClean + " root@" + str(request.session['currentZimbraServer']) + ":/tmp/zimbraTools/"
     os.popen(commande)
     #
     # Suppression du contenu du calendrier Zimbra en cours
-    commande = "ssh root@" + ZIMBRA_SERVER + " /root/zimbraTools/clearCalendar.sh " + cpte + " " + calendrier
+    commande = "ssh root@" + str(request.session['currentZimbraServer']) + " /root/zimbraTools/clearCalendar.sh " + cpte + " " + calendrier
     os.popen(commande)
     #
     # Import du fichier calendrier nettoyé dans le calendrier Zimbra en cours
-    commande = "ssh root@" + ZIMBRA_SERVER + " /root/zimbraTools/importerCalendar.sh " + cpte + " " + calendrier + " " + ficClean
+    commande = "ssh root@" + str(request.session['currentZimbraServer']) + " /root/zimbraTools/importerCalendar.sh " + cpte + " " + calendrier + " " + ficClean
     os.popen(commande)
     #
     # Suppression des fichiers temporaires
     os.remove(MEDIA_ROOT + ficExport)
     os.remove(MEDIA_ROOT + ficClean)
-    commande = "ssh root@" + ZIMBRA_SERVER + " rm /tmp/zimbraTools/" + ficExport
+    commande = "ssh root@" + str(request.session['currentZimbraServer']) + " rm /tmp/zimbraTools/" + ficExport
     os.popen(commande)
-    commande = "ssh root@" + ZIMBRA_SERVER + " rm /tmp/zimbraTools/" + ficClean
+    commande = "ssh root@" + str(request.session['currentZimbraServer']) + " rm /tmp/zimbraTools/" + ficClean
     os.popen(commande)
     # return HttpResponse("Nettoyage du calendrier effectué !")
     messageType = "success"
     message = "Nettoyage du calendrier effectué !"
     return render_to_response('message.html', {'STATIC_URL': settings.STATIC_URL,
-                                                 'messageType': messageType, 'message': message})
+                                                 'messageType': messageType, 'message': message},
+                              context_instance=RequestContext(request))
     # return HttpResponseRedirect(reverse('message', args=(messageType, message,)))
   else:
-    form = SelectCalendarForm(compte)
+    form = SelectCalendarForm(compte, request.session['currentZimbraServer'])
     return render_to_response('calendarCompteToClean.html',
                               {'compte': compte, 'form': form, },
                               context_instance=RequestContext(request))
 
 def login_interne(request):
-  username = request.POST['username']
-  password = request.POST['password']
-  user = authenticate(username=username, password=password)
-  if user is not None:
-    if user.is_active:
-      login(request, user)
-      return HttpResponseRedirect(reverse('home'))
+  if request.method == 'POST':
+    form = LoginForm(request.POST)
+    if form.is_valid():
+      username = form.cleaned_data['userName']
+      password = form.cleaned_data['userPassword']
+      zimbraServer = form.cleaned_data['host']
+      print "===== login_interne : zimbraServer = ", zimbraServer
+      user = authenticate(username=username, password=password)
+      if user is not None:
+        if user.is_active:
+          login(request, user)
+          request.session['currentZimbraServer'] = zimbraServer
+          print "===== login_interne : ZIMBRA_SERVER = ", request.session['currentZimbraServer']
+          return HttpResponseRedirect(reverse('home'))
+        else:
+          # return HttpResponse("Compte inexistant !")
+          messageType = "warning"
+          message = "Compte inexistant !"
+          return render_to_response('message.html', {'STATIC_URL': settings.STATIC_URL,
+                                                     'messageType': messageType, 'message': message},
+                                    context_instance=RequestContext(request))
     else:
-      # return HttpResponse("Compte inexistant !")
+      # return HttpResponse("Identifiant ou mot de passe incorrect !")
       messageType = "warning"
-      message = "Compte inexistant !"
+      message = "Identifiant ou mot de passe incorrect !"
       return render_to_response('message.html', {'STATIC_URL': settings.STATIC_URL,
-                                                 'messageType': messageType, 'message': message})
+                                                 'messageType': messageType, 'message': message},
+                                context_instance=RequestContext(request))
   else:
-    # return HttpResponse("Identifiant ou mot de passe incorrect !")
-    messageType = "warning"
-    message = "Identifiant ou mot de passe incorrect !"
-    return render_to_response('message.html', {'STATIC_URL': settings.STATIC_URL,
-                                               'messageType': messageType, 'message': message})
+    form = LoginForm()
+    return render_to_response('login.html',
+                              {'form': form, },
+                              context_instance=RequestContext(request))
 
 def logout_view(request):
     logout(request)
@@ -263,5 +282,5 @@ def home(request):
     return HttpResponseRedirect(reverse('fileToClean'))
 
 def message(request, messageType, message):
-    return render_to_response('message.html')
+    return render_to_response('message.html', context_instance=RequestContext(request))
 

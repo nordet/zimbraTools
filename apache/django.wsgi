@@ -1,7 +1,8 @@
 import os, sys
 
 sys.path.append('/var/www/')
-sys.path.append('/var/www/zimbratoolsnordet')
+sys.path.append('/var/www/zimbratools')
+sys.path.append(os.path.dirname(__file__))
 
 os.environ['DJANGO_SETTINGS_MODULE'] = '.settings'
 

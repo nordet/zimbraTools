@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Django settings for zimbraTools project.
 import os
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -13,11 +14,11 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/home/pascal/workspace/zimbraTools/sqlite.db',  # Or path to database file if using sqlite3.
-        'USER': '',  # Not used with sqlite3.
-        'PASSWORD': '',  # Not used with sqlite3.
-        'HOST': '',  # Set to empty string for localhost. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'zimbraTools',  # Or path to database file if using sqlite3.
+        'USER': 'zimbraTools',  # Not used with sqlite3.
+        'PASSWORD': 'uRcvqEwU',  # Not used with sqlite3.
+        'HOST': 'localhost',  # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',  # Set to empty string for default. Not used with sqlite3.
     }
 }
@@ -92,6 +93,18 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+# Template context processors
+TEMPLATE_CONTEXT_PROCESSORS = (
+                               'django.contrib.auth.context_processors.auth',
+                               'django.core.context_processors.debug',
+                               'django.core.context_processors.media',
+                               'django.core.context_processors.static',
+                               'django.core.context_processors.request',
+                               'django.core.context_processors.i18n',
+                               'django.core.context_processors.csrf',
+                               'removeDoublons.context_processors.currentZimbraServer'
+                               )
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -128,6 +141,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'removeDoublons',
     'django_ldapbackend',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -187,4 +201,4 @@ LOGIN_REDIRECT_URL = '/dashboard'  # Lien vers la page si l'authentification ré
 
 #
 # Constantes pour appli clearZimbra
-ZIMBRA_SERVER = 'mail.nordet.org'
+# ZIMBRA_SERVER = 'mail.nordet.org'

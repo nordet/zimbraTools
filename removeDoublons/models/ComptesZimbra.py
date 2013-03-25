@@ -5,11 +5,12 @@ Created on 21 févr. 2013
 @author: pascal
 '''
 import os
-from zimbraTools.settings import ZIMBRA_SERVER
-
+from rope.base.builtins import Str
 
 class ComptesZimbra():
-  def __init__(self):
-    proces = os.popen("ssh root@" + ZIMBRA_SERVER + " /root/zimbraTools/recuperationComptesZimbra.sh")
+  def __init__(self, zimbraServer=None):
+    proces = os.popen("ssh root@" + str(zimbraServer) + " /root/zimbraTools/recuperationComptesZimbra.sh")
     chaine = proces.read()
+    print "===== ComptesZimbra : zimbraServer = ", zimbraServer
+    print "===== ComptesZimbra : chaine = ", chaine
     self.liste = chaine.split()

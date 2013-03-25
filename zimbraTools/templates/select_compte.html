@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-  <h2>Sélectionner le compte utilisateur à traiter :</h2>
-  <form action="select_compte.html" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Ok" />
-  </form>
-{% endblock %}

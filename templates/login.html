@@ -8,20 +8,10 @@
 
 <h2>Veuillez entrer votre identifiant et votre mot de passe :</h2>
 <form method="post" action="login_interne">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
-
-<input type="submit" value="login" />
-<input type="hidden" name="next" value="{{ next }}" />
+  {% csrf_token %}
+  {{ form.as_table }}
+  <input type="submit" value="login" />
+  <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
 {% endblock %}
